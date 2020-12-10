@@ -1,5 +1,9 @@
 package pl.sda.refactoring.customers;
 
+import static pl.sda.refactoring.util.PatternValidator.emailMatches;
+import static pl.sda.refactoring.util.PatternValidator.nameMatches;
+import static pl.sda.refactoring.util.PatternValidator.peselMatches;
+
 import java.time.LocalDateTime;
 import java.util.Properties;
 import java.util.UUID;
@@ -22,41 +26,36 @@ public class CustomerService {
     /**
      * Register new person type customer
      * @param email
-     * @param fName
-     * @param lName
+     * @param firstName
+     * @param lastName
      * @param pesel
      * @param verified
      * @return
      */
-    public boolean registerPerson(String email, String fName, String lName, String pesel, boolean verified) {
+    public boolean registerPerson(String email, String firstName, String lastName, String pesel, boolean verified) {
         var result = false;
-        var customer = new Customer();
-        customer.setType(Customer.PERSON);
-        var isInDb = dao.emailExists(email) || dao.peselExists(pesel);
-        if (!isInDb) {
-            if (email != null && fName != null && lName != null && pesel != null) {
-                var emailP = Pattern.compile("(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])");
-                var emailM = emailP.matcher(email);
-                if (emailM.matches()) {
-                    customer.setEmail(email);
-                }
-                if (fName.length() > 0 && fName.matches("/\\p{L}{2,100}/")) {
-                    customer.setfName(fName);
-                }
-                if (lName.length() > 0 && lName.matches("/\\p{L}{2,100}/")) {
-                    customer.setlName(lName);
-                }
-                if (pesel.length() == 11 && pesel.matches("/\\d{11}/")) {
-                    customer.setPesel(pesel);
-                }
+        var customer = newPerson();
+        final var personDataExists = email != null && firstName != null && lastName != null && pesel != null;
+        if (personDataExists && !personExists(email, pesel)) {
+            if (emailMatches(email)) {
+                customer.setEmail(email);
+            }
+            if (nameMatches(firstName)) {
+                customer.setfName(firstName);
+            }
+            if (nameMatches(lastName)) {
+                customer.setlName(lastName);
+            }
+            if (peselMatches(pesel)) {
+                customer.setPesel(pesel);
+            }
 
-                if (isValidPerson(customer)) {
-                    result = true;
-                }
+            if (isValidPerson(customer)) {
+                result = true;
             }
         }
 
-        if (result == true) {
+        if (result) {
             customer.setCtime(LocalDateTime.now());
             String subj;
             String body;
@@ -65,21 +64,31 @@ public class CustomerService {
                 customer.setVerfTime(LocalDateTime.now());
                 customer.setVerifBy(CustomerVerifier.AUTO_EMAIL);
                 subj = "Your are now verified customer!";
-                body = "<b>Hi " + fName + "</b><br/>" +
+                body = "<b>Hi " + firstName + "</b><br/>" +
                     "Thank you for registering in our service. Now you are verified customer!";
             } else {
                 customer.setVerf(false);
                 subj = "Waiting for verification";
-                body = "<b>Hi " + fName + "</b><br/>" +
+                body = "<b>Hi " + firstName + "</b><br/>" +
                     "We registered you in our service. Please wait for verification!";
             }
-            genCustomerId(customer);
+            customer.setId(UUID.randomUUID());
             dao.save(customer);
             // send email to customer
             sendEmail(email, subj, body);
         }
 
         return result;
+    }
+
+    private boolean personExists(String email, String pesel) {
+        return dao.emailExists(email) || dao.peselExists(pesel);
+    }
+
+    private Customer newPerson() {
+        var customer = new Customer();
+        customer.setType(Customer.PERSON);
+        return customer;
     }
 
     /**
@@ -102,7 +111,7 @@ public class CustomerService {
                 if (emailM.matches()) {
                     customer.setEmail(email);
                 }
-                if (name.length() > 0 && name.matches("/\\p{L}{2,100}/")) {
+                if (name.length() > 0 && nameMatches(name)) {
                     customer.setCompName(name);
                 }
                 if (vat.length() == 10 && vat.matches("/\\d{10}/")) {
@@ -132,7 +141,7 @@ public class CustomerService {
                 body = "<b>Hello</b><br/>" +
                     "We registered your company: " + name + " in our service. Please wait for verification!";
             }
-            genCustomerId(customer);
+            customer.setId(UUID.randomUUID());
             dao.save(customer);
             // send email to customer
             sendEmail(email, subj, body);
@@ -167,10 +176,6 @@ public class CustomerService {
 
     private boolean isValidPerson(Customer customer) {
         return customer.getEmail() != null && customer.getfName() != null && customer.getlName() != null && customer.getPesel() != null;
-    }
-
-    private void genCustomerId(Customer customer) {
-        customer.setId(UUID.randomUUID());
     }
 
     private boolean isValid(boolean flag) {
