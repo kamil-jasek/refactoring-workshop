@@ -51,7 +51,7 @@ public class CustomerService {
             String subj;
             String body;
             if (verified) {
-                customer.setVerf(verified);
+                customer.setVerf(true);
                 customer.setVerfTime(LocalDateTime.now());
                 customer.setVerifBy(CustomerVerifier.AUTO_EMAIL);
                 subj = "Your are now verified customer!";
