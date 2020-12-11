@@ -21,14 +21,13 @@ final class CustomerServiceTest {
 
     private CustomerDao customerDao;
     private EmailSender emailSender;
-    private final CustomerService customerService = new CustomerService();
+    private CustomerService customerService;
 
     @BeforeEach
     void initService() {
         customerDao = mock(CustomerDao.class);
         emailSender = mock(EmailSender.class);
-        customerService.setDao(customerDao);
-        customerService.setEmailSender(emailSender);
+        customerService = new CustomerService(customerDao, emailSender, new CustomerMapper());
     }
 
     @Test
