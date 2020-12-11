@@ -3,6 +3,7 @@ package pl.sda.refactoring.customers;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
+import pl.sda.refactoring.application.events.NotificationPublisher;
 import pl.sda.refactoring.customers.event.EmptyEvent;
 
 final class NotificationPublisherTest {

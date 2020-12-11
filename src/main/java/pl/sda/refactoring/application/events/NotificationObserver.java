@@ -1,4 +1,4 @@
-package pl.sda.refactoring.customers;
+package pl.sda.refactoring.application.events;
 
 import pl.sda.refactoring.customers.event.Event;
 

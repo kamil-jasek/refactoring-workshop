@@ -1,4 +1,4 @@
-package pl.sda.refactoring.customers;
+package pl.sda.refactoring.discounts;
 
 import java.time.LocalDateTime;
 

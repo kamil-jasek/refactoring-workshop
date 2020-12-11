@@ -14,6 +14,7 @@ import static org.mockito.Mockito.verify;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import pl.sda.refactoring.application.events.NotificationPublisher;
 import pl.sda.refactoring.customers.dto.RegisterCompanyDto;
 import pl.sda.refactoring.customers.dto.RegisterPersonDto;
 import pl.sda.refactoring.util.EmailSender;

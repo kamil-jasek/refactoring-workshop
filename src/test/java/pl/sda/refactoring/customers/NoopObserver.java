@@ -1,5 +1,6 @@
 package pl.sda.refactoring.customers;
 
+import pl.sda.refactoring.application.events.NotificationObserver;
 import pl.sda.refactoring.customers.event.EmptyEvent;
 import pl.sda.refactoring.customers.event.Event;
 

@@ -6,13 +6,14 @@ import static pl.sda.refactoring.util.PatternValidator.nameMatches;
 import static pl.sda.refactoring.util.PatternValidator.peselMatches;
 import static pl.sda.refactoring.util.PatternValidator.vatMatches;
 
+import pl.sda.refactoring.application.events.NotificationPublisher;
 import pl.sda.refactoring.customers.dto.RegisterCompanyDto;
 import pl.sda.refactoring.customers.dto.RegisterPersonDto;
 import pl.sda.refactoring.customers.dto.UpdateAddressDto;
 import pl.sda.refactoring.customers.event.CompanyRegisteredEvent;
 import pl.sda.refactoring.customers.event.PersonRegisteredEvent;
 
-public class CustomerService {
+class CustomerService {
 
     private final CustomerDao dao;
     private final NotificationPublisher notificationPublisher;

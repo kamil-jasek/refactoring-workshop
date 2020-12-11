@@ -2,6 +2,7 @@ package pl.sda.refactoring.customers;
 
 import static java.util.Objects.requireNonNull;
 
+import pl.sda.refactoring.application.events.NotificationObserver;
 import pl.sda.refactoring.customers.event.Event;
 import pl.sda.refactoring.customers.event.PersonRegisteredEvent;
 import pl.sda.refactoring.util.EmailSender;

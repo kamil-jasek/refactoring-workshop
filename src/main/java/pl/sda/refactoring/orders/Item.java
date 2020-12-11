@@ -1,4 +1,4 @@
-package pl.sda.refactoring.customers;
+package pl.sda.refactoring.orders;
 
 import java.math.BigDecimal;
 import java.util.Objects;

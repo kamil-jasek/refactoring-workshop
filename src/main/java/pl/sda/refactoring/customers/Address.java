@@ -4,7 +4,7 @@ import static java.util.Objects.requireNonNull;
 
 import java.util.Objects;
 
-public class Address {
+final class Address {
     private String street;
     private String city;
     private String zipCode;

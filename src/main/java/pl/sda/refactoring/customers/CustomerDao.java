@@ -3,7 +3,7 @@ package pl.sda.refactoring.customers;
 import java.util.Optional;
 import java.util.UUID;
 
-public class CustomerDao {
+class CustomerDao {
 
     public void save(Customer customer) {
         throw new UnsupportedOperationException();

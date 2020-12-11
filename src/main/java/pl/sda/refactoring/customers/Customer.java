@@ -9,7 +9,7 @@ import pl.sda.refactoring.customers.dto.RegisterPersonDto;
 /**
  * The customer, can be person or company
  */
-public class Customer {
+class Customer {
 
     // customer types
     public static final int COMPANY = 1;

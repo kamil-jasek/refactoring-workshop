@@ -1,4 +1,4 @@
-package pl.sda.refactoring.customers;
+package pl.sda.refactoring.orders;
 
 import java.util.Optional;
 import java.util.UUID;
