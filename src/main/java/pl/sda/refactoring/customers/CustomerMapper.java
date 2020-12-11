@@ -1,6 +1,7 @@
 package pl.sda.refactoring.customers;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 import pl.sda.refactoring.customers.dto.RegisterCompanyDto;
 import pl.sda.refactoring.customers.dto.RegisterPersonDto;
 
@@ -9,6 +10,7 @@ final class CustomerMapper {
     Customer newPerson(RegisterPersonDto personDto) {
         var customer = new Customer();
         customer.setType(Customer.PERSON);
+        customer.setId(UUID.randomUUID());
         customer.setEmail(personDto.getEmail());
         customer.setfName(personDto.getFirstName());
         customer.setlName(personDto.getLastName());
@@ -20,6 +22,7 @@ final class CustomerMapper {
     Customer newCompany(RegisterCompanyDto companyDto) {
         var customer = new Customer();
         customer.setType(Customer.COMPANY);
+        customer.setId(UUID.randomUUID());
         customer.setEmail(companyDto.getEmail());
         customer.setCompName(companyDto.getName());
         customer.setCompVat(companyDto.getVat());

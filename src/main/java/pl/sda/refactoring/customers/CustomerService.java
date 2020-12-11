@@ -4,28 +4,25 @@ import static java.util.Objects.requireNonNull;
 import static pl.sda.refactoring.util.PatternValidator.emailMatches;
 import static pl.sda.refactoring.util.PatternValidator.nameMatches;
 import static pl.sda.refactoring.util.PatternValidator.peselMatches;
-import static pl.sda.refactoring.util.PatternValidator.vatMatches;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 import pl.sda.refactoring.customers.dto.RegisterCompanyDto;
 import pl.sda.refactoring.customers.dto.RegisterPersonDto;
-import pl.sda.refactoring.util.EmailSender;
+import pl.sda.refactoring.customers.event.CompanyRegisteredEvent;
+import pl.sda.refactoring.customers.event.PersonRegisteredEvent;
 
 public class CustomerService {
 
     private final CustomerDao dao;
-    private final EmailSender emailSender;
+    private final NotificationPublisher notificationPublisher;
     private final CustomerMapper customerMapper;
 
-    public CustomerService(CustomerDao dao, EmailSender emailSender,
+    public CustomerService(CustomerDao dao, NotificationPublisher notificationPublisher,
         CustomerMapper customerMapper) {
-        requireNonNull(dao);
-        requireNonNull(emailSender);
-        requireNonNull(customerMapper);
-        this.dao = dao;
-        this.emailSender = emailSender;
-        this.customerMapper = customerMapper;
+        this.dao = requireNonNull(dao);
+        this.notificationPublisher = requireNonNull(notificationPublisher);
+        this.customerMapper = requireNonNull(customerMapper);
     }
 
     /**
@@ -37,27 +34,19 @@ public class CustomerService {
         if (!isValidPerson(personDto) || personExists(personDto)) {
             return false;
         }
-
         final var customer = customerMapper.newPerson(personDto);
-        String subj;
-        String body;
         if (personDto.isVerified()) {
             customer.setVerf(true);
             customer.setVerfTime(LocalDateTime.now());
             customer.setVerifBy(CustomerVerifier.AUTO_EMAIL);
-            subj = "Your are now verified customer!";
-            body = "<b>Hi " + personDto.getFirstName() + "</b><br/>" +
-                "Thank you for registering in our service. Now you are verified customer!";
-        } else {
-            customer.setVerf(false);
-            subj = "Waiting for verification";
-            body = "<b>Hi " + personDto.getFirstName() + "</b><br/>" +
-                "We registered you in our service. Please wait for verification!";
         }
-        customer.setId(UUID.randomUUID());
         dao.save(customer);
-        // send email to customer
-        emailSender.sendEmail(personDto.getEmail(), subj, body);
+        notificationPublisher.publishEvent(new PersonRegisteredEvent(
+            customer.getId(),
+            customer.getfName(),
+            customer.getlName(),
+            customer.getEmail(),
+            customer.isVerf()));
         return true;
     }
 
@@ -81,28 +70,19 @@ public class CustomerService {
         if (!isValidCompany(companyDto) || companyExists(companyDto)) {
             return false;
         }
-
         final var customer = customerMapper.newCompany(companyDto);
-
-        String subj;
-        String body;
         if (companyDto.isVerified()) {
             customer.setVerf(companyDto.isVerified());
             customer.setVerfTime(LocalDateTime.now());
             customer.setVerifBy(CustomerVerifier.AUTO_EMAIL);
-            subj = "Your are now verified customer!";
-            body = "<b>Your company: " + companyDto.getName() + " is ready to make na order.</b><br/>" +
-                "Thank you for registering in our service. Now you are verified customer!";
-        } else {
-            customer.setVerf(false);
-            subj = "Waiting for verification";
-            body = "<b>Hello</b><br/>" +
-                "We registered your company: " + companyDto.getName() + " in our service. Please wait for verification!";
         }
-        customer.setId(UUID.randomUUID());
         dao.save(customer);
-        // send email to customer
-        emailSender.sendEmail(companyDto.getEmail(), subj, body);
+        notificationPublisher.publishEvent(new CompanyRegisteredEvent(
+            customer.getId(),
+            customer.getEmail(),
+            customer.getCompName(),
+            customer.getCompVat(),
+            customer.isVerf()));
         return true;
     }
 
@@ -112,6 +92,7 @@ public class CustomerService {
 
     /**
      * Set new address for customer
+     *
      * @param cid
      * @param str
      * @param zipcode
@@ -123,13 +104,13 @@ public class CustomerService {
         var result = false;
         var customer = dao.findById(cid);
         if (customer.isPresent()) {
-           var object = customer.get();
-           object.setAddrStreet(str);
-           object.setAddrZipCode(zipcode);
-           object.setAddrCity(city);
-           object.setAddrCountryCode(country);
-           dao.save(object);
-           result = true;
+            var object = customer.get();
+            object.setAddrStreet(str);
+            object.setAddrZipCode(zipcode);
+            object.setAddrCity(city);
+            object.setAddrCountryCode(country);
+            dao.save(object);
+            result = true;
         }
         return result;
     }

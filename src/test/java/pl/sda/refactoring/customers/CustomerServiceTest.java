@@ -28,7 +28,16 @@ final class CustomerServiceTest {
     void initService() {
         customerDao = mock(CustomerDao.class);
         emailSender = mock(EmailSender.class);
-        customerService = new CustomerService(customerDao, emailSender, new CustomerMapper());
+        customerService = new CustomerService(customerDao, setUpNotificationPublisher(), new CustomerMapper());
+    }
+
+    private NotificationPublisher setUpNotificationPublisher() {
+        final var notificationPublisher = new NotificationPublisher();
+        final var sendCompanyRegistrationEmailObserver = new SendCompanyRegistrationEmailObserver(emailSender);
+        final var sendPersonRegistrationEmailObserver = new SendPersonRegistrationEmailObserver(emailSender);
+        notificationPublisher.registerObserver(sendCompanyRegistrationEmailObserver);
+        notificationPublisher.registerObserver(sendPersonRegistrationEmailObserver);
+        return notificationPublisher;
     }
 
     @Test
