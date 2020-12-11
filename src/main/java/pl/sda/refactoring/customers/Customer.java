@@ -28,11 +28,6 @@ public class Customer {
     private String companyName;
     private String companyVat;
 
-    // person data
-    private String personFirstName;
-    private String personLastName;
-    private String personPesel;
-
     public Customer() {
     }
 
@@ -67,18 +62,6 @@ public class Customer {
 
     public String getCompanyVat() {
         return companyVat;
-    }
-
-    public String getPersonFirstName() {
-        return personFirstName;
-    }
-
-    public String getPersonLastName() {
-        return personLastName;
-    }
-
-    public String getPersonPesel() {
-        return personPesel;
     }
 
     public String getEmail() {
@@ -118,23 +101,15 @@ public class Customer {
         Customer customer = (Customer) o;
         return type == customer.type && verified == customer.verified && Objects.equals(id, customer.id)
             && Objects.equals(createTime, customer.createTime) && Objects.equals(email, customer.email)
-            && Objects.equals(verificationTime, customer.verificationTime) && verifiedBy == customer.verifiedBy && Objects
-            .equals(companyName, customer.companyName) && Objects.equals(companyVat, customer.companyVat) && Objects
-            .equals(personFirstName, customer.personFirstName) && Objects.equals(
-            personLastName, customer.personLastName) && Objects
-            .equals(personPesel, customer.personPesel) && Objects.equals(address.getStreet(),
-            customer.address.getStreet()) && Objects
-            .equals(address.getCity(), customer.address.getCity()) && Objects.equals(
-            address.getZipCode(),
-            customer.address.getZipCode())
-            && Objects.equals(address.getCountryCode(), customer.address.getCountryCode());
+            && Objects.equals(verificationTime, customer.verificationTime) && verifiedBy == customer.verifiedBy
+            && Objects.equals(address, customer.address) && Objects
+            .equals(companyName, customer.companyName) && Objects.equals(companyVat, customer.companyVat);
     }
 
     @Override
     public int hashCode() {
         return Objects
-            .hash(id, type, createTime, email, verificationTime, verified, verifiedBy, companyName, companyVat,
-                personFirstName, personLastName, personPesel, address.getStreet(),
-                address.getCity(), address.getZipCode(), address.getCountryCode());
+            .hash(id, type, createTime, email, verificationTime, verified, verifiedBy, address, companyName,
+                companyVat);
     }
 }

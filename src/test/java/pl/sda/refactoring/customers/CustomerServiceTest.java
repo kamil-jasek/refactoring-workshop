@@ -117,8 +117,5 @@ final class CustomerServiceTest {
         assertTrue(capturedCustomer.isVerified());
         assertNotNull(capturedCustomer.getVerificationTime());
         assertEquals(CustomerVerifier.AUTO_EMAIL, capturedCustomer.getVerifiedBy());
-        assertNull(capturedCustomer.getPersonFirstName());
-        assertNull(capturedCustomer.getPersonLastName());
-        assertNull(capturedCustomer.getPersonPesel());
     }
 }
