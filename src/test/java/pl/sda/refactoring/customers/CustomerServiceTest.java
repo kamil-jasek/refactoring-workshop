@@ -14,6 +14,7 @@ import static org.mockito.Mockito.verify;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import pl.sda.refactoring.customers.dto.RegisterPersonDto;
 import pl.sda.refactoring.util.EmailSender;
 
 final class CustomerServiceTest {
@@ -31,15 +32,6 @@ final class CustomerServiceTest {
     }
 
     @Test
-    void shouldNotRegisterPerson() {
-        // when
-        final var result = customerService.registerPerson(null, null, null, null, false);
-
-        // then
-        assertFalse(result);
-    }
-
-    @Test
     void shouldRegisterNotVerifiedPerson() {
         // given
         given(customerDao.emailExists(anyString())).willReturn(false);
@@ -48,7 +40,7 @@ final class CustomerServiceTest {
 
         // when
         final var result = customerService
-            .registerPerson("kamil@com.pl", "Kamil", "Jasek", "03039403944", false);
+            .registerPerson(new RegisterPersonDto("kamil@com.pl", "Kamil", "Jasek", "03039403944", false));
 
         // then
         assertTrue(result);
@@ -75,7 +67,7 @@ final class CustomerServiceTest {
 
         // when
         final var result = customerService
-            .registerPerson("kamil@com.pl", "Kamil", "Jasek", "03039403944", true);
+            .registerPerson(new RegisterPersonDto("kamil@com.pl", "Kamil", "Jasek", "03039403944", true));
 
         // then
         assertTrue(result);

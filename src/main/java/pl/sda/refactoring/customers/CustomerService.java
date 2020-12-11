@@ -7,6 +7,7 @@ import static pl.sda.refactoring.util.PatternValidator.peselMatches;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import java.util.regex.Pattern;
+import pl.sda.refactoring.customers.dto.RegisterPersonDto;
 import pl.sda.refactoring.util.EmailSender;
 
 public class CustomerService {
@@ -16,64 +17,55 @@ public class CustomerService {
 
     /**
      * Register new person type customer
-     * @param email
-     * @param firstName
-     * @param lastName
-     * @param pesel
-     * @param verified
-     * @return
+     *
+     * @param personDto@return
      */
-    public boolean registerPerson(String email, String firstName, String lastName, String pesel, boolean verified) {
+    public boolean registerPerson(RegisterPersonDto personDto) {
         var result = false;
         var customer = newPerson();
-        final var personDataExists = email != null && firstName != null && lastName != null && pesel != null;
-        if (personDataExists && !personExists(email, pesel)) {
-            if (emailMatches(email)) {
-                customer.setEmail(email);
-            }
-            if (nameMatches(firstName)) {
-                customer.setfName(firstName);
-            }
-            if (nameMatches(lastName)) {
-                customer.setlName(lastName);
-            }
-            if (peselMatches(pesel)) {
-                customer.setPesel(pesel);
-            }
-
-            if (isValidPerson(customer)) {
-                result = true;
-            }
+        if (isValidPerson(personDto) && !personExists(personDto)) {
+            customer.setEmail(personDto.getEmail());
+            customer.setfName(personDto.getFirstName());
+            customer.setlName(personDto.getLastName());
+            customer.setPesel(personDto.getPesel());
+            result = true;
         }
 
         if (result) {
             customer.setCtime(LocalDateTime.now());
             String subj;
             String body;
-            if (verified) {
+            if (personDto.isVerified()) {
                 customer.setVerf(true);
                 customer.setVerfTime(LocalDateTime.now());
                 customer.setVerifBy(CustomerVerifier.AUTO_EMAIL);
                 subj = "Your are now verified customer!";
-                body = "<b>Hi " + firstName + "</b><br/>" +
+                body = "<b>Hi " + personDto.getFirstName() + "</b><br/>" +
                     "Thank you for registering in our service. Now you are verified customer!";
             } else {
                 customer.setVerf(false);
                 subj = "Waiting for verification";
-                body = "<b>Hi " + firstName + "</b><br/>" +
+                body = "<b>Hi " + personDto.getFirstName() + "</b><br/>" +
                     "We registered you in our service. Please wait for verification!";
             }
             customer.setId(UUID.randomUUID());
             dao.save(customer);
             // send email to customer
-            emailSender.sendEmail(email, subj, body);
+            emailSender.sendEmail(personDto.getEmail(), subj, body);
         }
 
         return result;
     }
 
-    private boolean personExists(String email, String pesel) {
-        return dao.emailExists(email) || dao.peselExists(pesel);
+    private boolean isValidPerson(RegisterPersonDto personDto) {
+        return emailMatches(personDto.getEmail()) &&
+            nameMatches(personDto.getFirstName()) &&
+            nameMatches(personDto.getLastName()) &&
+            peselMatches(personDto.getPesel());
+    }
+
+    private boolean personExists(RegisterPersonDto personDto) {
+        return dao.emailExists(personDto.getEmail()) || dao.peselExists(personDto.getPesel());
     }
 
     private Customer newPerson() {
