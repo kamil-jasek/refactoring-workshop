@@ -34,7 +34,7 @@
 //     */
 //    public boolean makeOrder(UUID cid, List<Item> items, String coupon) {
 //        var result = false;
-//        var optional = customerFacade.findById(cid);
+//        var customerDto = customerFacade.getOne(cid); throw new EntityNotFound
 //        if (optional.isPresent() && items != null && items.size() > 0) {
 //            var order = new Order();
 //            genId(order);
