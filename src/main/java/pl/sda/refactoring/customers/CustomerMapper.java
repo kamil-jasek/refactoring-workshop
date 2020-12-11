@@ -1,32 +1,17 @@
 package pl.sda.refactoring.customers;
 
-import java.time.LocalDateTime;
-import java.util.UUID;
 import pl.sda.refactoring.customers.dto.RegisterCompanyDto;
 import pl.sda.refactoring.customers.dto.RegisterPersonDto;
 
 final class CustomerMapper {
 
-    Customer newPerson(RegisterPersonDto personDto) {
-        var customer = new Customer();
-        customer.setType(Customer.PERSON);
-        customer.setId(UUID.randomUUID());
-        customer.setEmail(personDto.getEmail());
-        customer.setfName(personDto.getFirstName());
-        customer.setlName(personDto.getLastName());
-        customer.setPesel(personDto.getPesel());
-        customer.setCtime(LocalDateTime.now());
-        return customer;
+    Person newPerson(RegisterPersonDto personDto) {
+        return new Person(personDto.getEmail(), personDto.getFirstName(), personDto.getLastName(), personDto.getPesel());
     }
 
     Customer newCompany(RegisterCompanyDto companyDto) {
-        var customer = new Customer();
-        customer.setType(Customer.COMPANY);
-        customer.setId(UUID.randomUUID());
-        customer.setEmail(companyDto.getEmail());
-        customer.setCompName(companyDto.getName());
-        customer.setCompVat(companyDto.getVat());
-        customer.setCtime(LocalDateTime.now());
-        return customer;
+        final var company = new Customer();
+        return company.setUpCompany(companyDto);
     }
+
 }

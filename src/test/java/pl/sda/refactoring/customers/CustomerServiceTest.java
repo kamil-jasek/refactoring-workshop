@@ -45,7 +45,7 @@ final class CustomerServiceTest {
         // given
         given(customerDao.emailExists(anyString())).willReturn(false);
         given(customerDao.peselExists(anyString())).willReturn(false);
-        var customerCaptor = ArgumentCaptor.forClass(Customer.class);
+        var customerCaptor = ArgumentCaptor.forClass(Person.class);
 
         // when
         final var result = customerService
@@ -56,15 +56,15 @@ final class CustomerServiceTest {
         verify(customerDao, times(1)).save(customerCaptor.capture());
         final var capturedCustomer = customerCaptor.getValue();
         assertNotNull(capturedCustomer.getId());
-        assertNotNull(capturedCustomer.getCtime());
+        assertNotNull(capturedCustomer.getCreateTime());
         assertEquals("kamil@com.pl", capturedCustomer.getEmail());
-        assertEquals("Kamil", capturedCustomer.getfName());
-        assertEquals("Jasek", capturedCustomer.getlName());
-        assertFalse(capturedCustomer.isVerf());
-        assertNull(capturedCustomer.getVerfTime());
-        assertNull(capturedCustomer.getVerifBy());
-        assertNull(capturedCustomer.getCompName());
-        assertNull(capturedCustomer.getCompVat());
+        assertEquals("Kamil", capturedCustomer.getFirstName());
+        assertEquals("Jasek", capturedCustomer.getLastName());
+        assertFalse(capturedCustomer.isVerified());
+        assertNull(capturedCustomer.getVerificationTime());
+        assertNull(capturedCustomer.getVerifiedBy());
+        assertNull(capturedCustomer.getCompanyName());
+        assertNull(capturedCustomer.getCompanyVat());
     }
 
     @Test
@@ -72,7 +72,7 @@ final class CustomerServiceTest {
         // given
         given(customerDao.emailExists(anyString())).willReturn(false);
         given(customerDao.peselExists(anyString())).willReturn(false);
-        var customerCaptor = ArgumentCaptor.forClass(Customer.class);
+        var customerCaptor = ArgumentCaptor.forClass(Person.class);
 
         // when
         final var result = customerService
@@ -83,15 +83,15 @@ final class CustomerServiceTest {
         verify(customerDao, times(1)).save(customerCaptor.capture());
         final var capturedCustomer = customerCaptor.getValue();
         assertNotNull(capturedCustomer.getId());
-        assertNotNull(capturedCustomer.getCtime());
+        assertNotNull(capturedCustomer.getCreateTime());
         assertEquals("kamil@com.pl", capturedCustomer.getEmail());
-        assertEquals("Kamil", capturedCustomer.getfName());
-        assertEquals("Jasek", capturedCustomer.getlName());
-        assertTrue(capturedCustomer.isVerf());
-        assertNotNull(capturedCustomer.getVerfTime());
-        assertEquals(CustomerVerifier.AUTO_EMAIL, capturedCustomer.getVerifBy());
-        assertNull(capturedCustomer.getCompName());
-        assertNull(capturedCustomer.getCompVat());
+        assertEquals("Kamil", capturedCustomer.getFirstName());
+        assertEquals("Jasek", capturedCustomer.getLastName());
+        assertTrue(capturedCustomer.isVerified());
+        assertNotNull(capturedCustomer.getVerificationTime());
+        assertEquals(CustomerVerifier.AUTO_EMAIL, capturedCustomer.getVerifiedBy());
+        assertNull(capturedCustomer.getCompanyName());
+        assertNull(capturedCustomer.getCompanyVat());
     }
 
     @Test
@@ -110,15 +110,15 @@ final class CustomerServiceTest {
         verify(customerDao, times(1)).save(customerCaptor.capture());
         final var capturedCustomer = customerCaptor.getValue();
         assertNotNull(capturedCustomer.getId());
-        assertNotNull(capturedCustomer.getCtime());
+        assertNotNull(capturedCustomer.getCreateTime());
         assertEquals("kamil@com.pl", capturedCustomer.getEmail());
-        assertEquals("TEST S.A.", capturedCustomer.getCompName());
-        assertEquals("8382773833", capturedCustomer.getCompVat());
-        assertTrue(capturedCustomer.isVerf());
-        assertNotNull(capturedCustomer.getVerfTime());
-        assertEquals(CustomerVerifier.AUTO_EMAIL, capturedCustomer.getVerifBy());
-        assertNull(capturedCustomer.getfName());
-        assertNull(capturedCustomer.getlName());
-        assertNull(capturedCustomer.getPesel());
+        assertEquals("TEST S.A.", capturedCustomer.getCompanyName());
+        assertEquals("8382773833", capturedCustomer.getCompanyVat());
+        assertTrue(capturedCustomer.isVerified());
+        assertNotNull(capturedCustomer.getVerificationTime());
+        assertEquals(CustomerVerifier.AUTO_EMAIL, capturedCustomer.getVerifiedBy());
+        assertNull(capturedCustomer.getPersonFirstName());
+        assertNull(capturedCustomer.getPersonLastName());
+        assertNull(capturedCustomer.getPersonPesel());
     }
 }

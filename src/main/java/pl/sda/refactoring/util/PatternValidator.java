@@ -14,7 +14,7 @@ public final class PatternValidator {
     }
 
     public static boolean nameMatches(String firstName) {
-        return firstName.matches("\\p{L}{2,100}");
+        return firstName.matches("[\\p{L}\\s\\.]{2,100}");
     }
 
     public static boolean peselMatches(String pesel) {
