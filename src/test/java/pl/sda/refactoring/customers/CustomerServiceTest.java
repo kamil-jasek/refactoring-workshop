@@ -14,6 +14,7 @@ import static org.mockito.Mockito.verify;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import pl.sda.refactoring.customers.dto.RegisterCompanyDto;
 import pl.sda.refactoring.customers.dto.RegisterPersonDto;
 import pl.sda.refactoring.util.EmailSender;
 
@@ -82,5 +83,33 @@ final class CustomerServiceTest {
         assertEquals(CustomerVerifier.AUTO_EMAIL, capturedCustomer.getVerifBy());
         assertNull(capturedCustomer.getCompName());
         assertNull(capturedCustomer.getCompVat());
+    }
+
+    @Test
+    void shouldRegisterVerifiedCompany() {
+        // given
+        given(customerDao.emailExists(anyString())).willReturn(false);
+        given(customerDao.peselExists(anyString())).willReturn(false);
+        var customerCaptor = ArgumentCaptor.forClass(Customer.class);
+
+        // when
+        final var result = customerService
+            .registerCompany(new RegisterCompanyDto("kamil@com.pl", "TEST S.A.", "8382773833", true));
+
+        // then
+        assertTrue(result);
+        verify(customerDao, times(1)).save(customerCaptor.capture());
+        final var capturedCustomer = customerCaptor.getValue();
+        assertNotNull(capturedCustomer.getId());
+        assertNotNull(capturedCustomer.getCtime());
+        assertEquals("kamil@com.pl", capturedCustomer.getEmail());
+        assertEquals("TEST S.A.", capturedCustomer.getCompName());
+        assertEquals("8382773833", capturedCustomer.getCompVat());
+        assertTrue(capturedCustomer.isVerf());
+        assertNotNull(capturedCustomer.getVerfTime());
+        assertEquals(CustomerVerifier.AUTO_EMAIL, capturedCustomer.getVerifBy());
+        assertNull(capturedCustomer.getfName());
+        assertNull(capturedCustomer.getlName());
+        assertNull(capturedCustomer.getPesel());
     }
 }

@@ -4,10 +4,11 @@ import static java.util.Objects.requireNonNull;
 import static pl.sda.refactoring.util.PatternValidator.emailMatches;
 import static pl.sda.refactoring.util.PatternValidator.nameMatches;
 import static pl.sda.refactoring.util.PatternValidator.peselMatches;
+import static pl.sda.refactoring.util.PatternValidator.vatMatches;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
-import java.util.regex.Pattern;
+import pl.sda.refactoring.customers.dto.RegisterCompanyDto;
 import pl.sda.refactoring.customers.dto.RegisterPersonDto;
 import pl.sda.refactoring.util.EmailSender;
 
@@ -33,7 +34,7 @@ public class CustomerService {
      * @param personDto@return
      */
     public boolean registerPerson(RegisterPersonDto personDto) {
-        if (!isValidCompany(personDto) || personExists(personDto)) {
+        if (!isValidPerson(personDto) || personExists(personDto)) {
             return false;
         }
 
@@ -60,7 +61,7 @@ public class CustomerService {
         return true;
     }
 
-    private boolean isValidCompany(RegisterPersonDto personDto) {
+    private boolean isValidPerson(RegisterPersonDto personDto) {
         return emailMatches(personDto.getEmail()) &&
             nameMatches(personDto.getFirstName()) &&
             nameMatches(personDto.getLastName()) &&
@@ -73,61 +74,40 @@ public class CustomerService {
 
     /**
      * Register new company type customer
-     * @param email
-     * @param name
-     * @param vat
-     * @param verified
-     * @return
+     *
+     * @param companyDto@return
      */
-    public boolean registerCompany(String email, String name, String vat, boolean verified) {
-        var result = false;
-        var customer = new Customer();
-        customer.setType(Customer.COMPANY);
-        var isInDb = dao.emailExists(email) || dao.vatExists(vat);
-        if (!isInDb) {
-            if (email != null && name != null && vat != null) {
-                var emailP = Pattern.compile("(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])");
-                var emailM = emailP.matcher(email);
-                if (emailM.matches()) {
-                    customer.setEmail(email);
-                }
-                if (name.length() > 0 && nameMatches(name)) {
-                    customer.setCompName(name);
-                }
-                if (vat.length() == 10 && vat.matches("/\\d{10}/")) {
-                    customer.setCompVat(vat);
-                }
-
-                if (isValidCompany(customer)) {
-                    result = true;
-                }
-            }
+    public boolean registerCompany(RegisterCompanyDto companyDto) {
+        if (!isValidCompany(companyDto) || companyExists(companyDto)) {
+            return false;
         }
 
-        if (result == true) {
-            customer.setCtime(LocalDateTime.now());
-            String subj;
-            String body;
-            if (verified) {
-                customer.setVerf(verified);
-                customer.setVerfTime(LocalDateTime.now());
-                customer.setVerifBy(CustomerVerifier.AUTO_EMAIL);
-                subj = "Your are now verified customer!";
-                body = "<b>Your company: " + name + " is ready to make na order.</b><br/>" +
-                    "Thank you for registering in our service. Now you are verified customer!";
-            } else {
-                customer.setVerf(false);
-                subj = "Waiting for verification";
-                body = "<b>Hello</b><br/>" +
-                    "We registered your company: " + name + " in our service. Please wait for verification!";
-            }
-            customer.setId(UUID.randomUUID());
-            dao.save(customer);
-            // send email to customer
-            emailSender.sendEmail(email, subj, body);
-        }
+        final var customer = customerMapper.newCompany(companyDto);
 
-        return result;
+        String subj;
+        String body;
+        if (companyDto.isVerified()) {
+            customer.setVerf(companyDto.isVerified());
+            customer.setVerfTime(LocalDateTime.now());
+            customer.setVerifBy(CustomerVerifier.AUTO_EMAIL);
+            subj = "Your are now verified customer!";
+            body = "<b>Your company: " + companyDto.getName() + " is ready to make na order.</b><br/>" +
+                "Thank you for registering in our service. Now you are verified customer!";
+        } else {
+            customer.setVerf(false);
+            subj = "Waiting for verification";
+            body = "<b>Hello</b><br/>" +
+                "We registered your company: " + companyDto.getName() + " in our service. Please wait for verification!";
+        }
+        customer.setId(UUID.randomUUID());
+        dao.save(customer);
+        // send email to customer
+        emailSender.sendEmail(companyDto.getEmail(), subj, body);
+        return true;
+    }
+
+    private boolean companyExists(RegisterCompanyDto companyDto) {
+        return dao.emailExists(companyDto.getEmail()) || dao.vatExists(companyDto.getVat());
     }
 
     /**
@@ -154,7 +134,7 @@ public class CustomerService {
         return result;
     }
 
-    private boolean isValidCompany(Customer customer) {
-        return customer.getEmail() != null && customer.getCompName() != null && customer.getCompVat() != null;
+    private boolean isValidCompany(RegisterCompanyDto companyDto) {
+        return companyDto.getEmail() != null && companyDto.getName() != null && companyDto.getVat() != null;
     }
 }

@@ -20,4 +20,8 @@ public final class PatternValidator {
     public static boolean peselMatches(String pesel) {
         return pesel.matches("\\d{11}");
     }
+
+    public static boolean vatMatches(String vat) {
+        return vat.matches("\\d{10}");
+    }
 }
